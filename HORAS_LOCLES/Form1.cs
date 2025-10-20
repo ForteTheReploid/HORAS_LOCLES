@@ -1,4 +1,9 @@
 using System;
+using System.Net.Http;
+using System.Text;
+using System.Threading.Tasks;
+using Newtonsoft.Json;
+using System.Configuration;
 using System.Linq.Expressions;
 using Npgsql; //Npgsql .NET Data Provider for PostgreSQL
 
@@ -46,9 +51,9 @@ namespace HORAS_LOCLES
                 connection = new NpgsqlConnection(CONNECTION_STRING);
                 connection.Open();
             } 
-            catch(Exception e) 
+            catch(Exception e)
             {
-                MessageBox.Show("No Existe coneccíon con el Servidor");
+                MessageBox.Show("No Existe coneccon con el Servidor");
                 throw;
             }
 
@@ -99,12 +104,12 @@ namespace HORAS_LOCLES
                         int rows = await cmd.ExecuteNonQueryAsync();
                         if (rows > 0)
                         {
-                            MessageBox.Show("Marcación Registrada..", "Marcaciones:",
+                            MessageBox.Show("Marcacin Registrada..", "Marcaciones:",
                                  MessageBoxButtons.OK, MessageBoxIcon.Information);
                         }
                         else
                         {
-                            MessageBox.Show("No se registro marcación..", "Marcaciones:",
+                            MessageBox.Show("No se registro marcacin..", "Marcaciones:",
                                  MessageBoxButtons.OK, MessageBoxIcon.Warning);
                         }
                     }
@@ -113,7 +118,7 @@ namespace HORAS_LOCLES
                 }
                 else
                 {
-                    MessageBox.Show("Ingrese Número de Cédula");
+                    MessageBox.Show("Ingrese Nmero de Cdula");
                 }
 
                 txt_cedula.Text = "";
@@ -169,6 +174,24 @@ namespace HORAS_LOCLES
         private void label3_Click(object sender, EventArgs e)
         {
 
+        }
+
+        private async Task PostToGoogleAppsScriptAsync(string url, object payload)
+        {
+            using (var client = new HttpClient())
+            {
+                client.Timeout = TimeSpan.FromSeconds(5);
+
+                var json = JsonConvert.SerializeObject(payload);
+                var content = new StringContent(json, Encoding.UTF8, "application/json");
+                var resp = await client.PostAsync(url, content);
+                var text = (await resp.Content.ReadAsStringAsync())?.Trim();
+
+                if (!resp.IsSuccessStatusCode || !string.Equals(text, "OK", StringComparison.OrdinalIgnoreCase))
+                {
+                    throw new Exception("Sheets webhook returned: " + text);
+                }
+            }
         }
     }
 }
