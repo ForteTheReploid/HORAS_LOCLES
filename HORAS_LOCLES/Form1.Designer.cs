@@ -3,14 +3,13 @@ namespace HORAS_LOCLES
     partial class Form1
     {
         /// <summary>
-        ///  Required designer variable.
+        ///  Variable del diseñador.
         /// </summary>
         private System.ComponentModel.IContainer components = null;
 
         /// <summary>
-        ///  Clean up any resources being used.
+        ///  Liberar recursos.
         /// </summary>
-        /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
         protected override void Dispose(bool disposing)
         {
             if (disposing && (components != null))
@@ -20,17 +19,18 @@ namespace HORAS_LOCLES
             base.Dispose(disposing);
         }
 
-        #region Windows Form Designer generated code
+        #region Código generado por el Diseñador de Windows Forms
 
         /// <summary>
-        ///  Required method for Designer support - do not modify
-        ///  the contents of this method with the code editor.
+        ///  Método necesario para admitir el Diseñador. No modificar
+        ///  el contenido de este método con el editor de código.
         /// </summary>
         private void InitializeComponent()
         {
             this.txt_cedula = new System.Windows.Forms.TextBox();
             this.txt_observacion = new System.Windows.Forms.TextBox();
-            this.button1 = new System.Windows.Forms.Button();
+            this.btnEntrada = new System.Windows.Forms.Button();
+            this.btnSalida = new System.Windows.Forms.Button();
             this.lblCedula = new System.Windows.Forms.Label();
             this.lblObs = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
@@ -51,15 +51,25 @@ namespace HORAS_LOCLES
             this.txt_observacion.Size = new System.Drawing.Size(360, 70);
             this.txt_observacion.TabIndex = 1;
             // 
-            // button1
+            // btnEntrada
             // 
-            this.button1.Location = new System.Drawing.Point(24, 198);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(120, 32);
-            this.button1.TabIndex = 2;
-            this.button1.Text = "Marcar";
-            this.button1.UseVisualStyleBackColor = true;
-            this.button1.Click += new System.EventHandler(this.button1_Click);
+            this.btnEntrada.Location = new System.Drawing.Point(24, 198);
+            this.btnEntrada.Name = "btnEntrada";
+            this.btnEntrada.Size = new System.Drawing.Size(120, 32);
+            this.btnEntrada.TabIndex = 2;
+            this.btnEntrada.Text = "Entrada";
+            this.btnEntrada.UseVisualStyleBackColor = true;
+            this.btnEntrada.Click += new System.EventHandler(this.btnEntrada_Click);
+            // 
+            // btnSalida
+            // 
+            this.btnSalida.Location = new System.Drawing.Point(164, 198);
+            this.btnSalida.Name = "btnSalida";
+            this.btnSalida.Size = new System.Drawing.Size(120, 32);
+            this.btnSalida.TabIndex = 3;
+            this.btnSalida.Text = "Salida";
+            this.btnSalida.UseVisualStyleBackColor = true;
+            this.btnSalida.Click += new System.EventHandler(this.btnSalida_Click);
             // 
             // lblCedula
             // 
@@ -67,7 +77,7 @@ namespace HORAS_LOCLES
             this.lblCedula.Location = new System.Drawing.Point(24, 32);
             this.lblCedula.Name = "lblCedula";
             this.lblCedula.Size = new System.Drawing.Size(110, 15);
-            this.lblCedula.TabIndex = 3;
+            this.lblCedula.TabIndex = 4;
             this.lblCedula.Text = "Número de cédula:";
             // 
             // lblObs
@@ -76,7 +86,7 @@ namespace HORAS_LOCLES
             this.lblObs.Location = new System.Drawing.Point(24, 92);
             this.lblObs.Name = "lblObs";
             this.lblObs.Size = new System.Drawing.Size(76, 15);
-            this.lblObs.TabIndex = 4;
+            this.lblObs.TabIndex = 5;
             this.lblObs.Text = "Observación:";
             // 
             // label3
@@ -85,7 +95,7 @@ namespace HORAS_LOCLES
             this.label3.Location = new System.Drawing.Point(340, 9);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(12, 15);
-            this.label3.TabIndex = 5;
+            this.label3.TabIndex = 6;
             this.label3.Text = " ";
             this.label3.Click += new System.EventHandler(this.label3_Click);
             // 
@@ -97,7 +107,8 @@ namespace HORAS_LOCLES
             this.Controls.Add(this.label3);
             this.Controls.Add(this.lblObs);
             this.Controls.Add(this.lblCedula);
-            this.Controls.Add(this.button1);
+            this.Controls.Add(this.btnSalida);
+            this.Controls.Add(this.btnEntrada);
             this.Controls.Add(this.txt_observacion);
             this.Controls.Add(this.txt_cedula);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
@@ -115,7 +126,8 @@ namespace HORAS_LOCLES
 
         private System.Windows.Forms.TextBox txt_cedula;
         private System.Windows.Forms.TextBox txt_observacion;
-        private System.Windows.Forms.Button button1;
+        private System.Windows.Forms.Button btnEntrada;
+        private System.Windows.Forms.Button btnSalida;
         private System.Windows.Forms.Label lblCedula;
         private System.Windows.Forms.Label lblObs;
         private System.Windows.Forms.Label label3;
