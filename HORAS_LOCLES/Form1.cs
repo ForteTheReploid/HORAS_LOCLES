@@ -22,13 +22,19 @@ namespace HORAS_LOCLES
             InitializeComponent();
         }
 
-        // Handler que pide el diseñador; lo dejamos vacío
+        // El diseñador referencia este handler; lo dejamos vacío
         private void Form1_Load(object sender, EventArgs e)
         {
             // Intencionalmente vacío
         }
 
-        // POST genérico al Apps Script; exige "OK"
+        // El diseñador referencia este handler; lo dejamos vacío
+        private void label3_Click(object sender, EventArgs e)
+        {
+            // Intencionalmente vacío
+        }
+
+        // POST genérico al Apps Script; valida "OK"
         private static async Task PostToGoogleAppsScriptAsync(string url, object payload)
         {
             var json = JsonConvert.SerializeObject(payload);
@@ -40,7 +46,7 @@ namespace HORAS_LOCLES
                 throw new Exception("Sheets webhook returned: " + text);
         }
 
-        // Arma y envía el payload mínimo (la hoja 'Usuarios' completa el resto)
+        // Arma el payload mínimo (la hoja 'Usuarios' completa el resto)
         private async Task SendToSheetsAsync(string cedula, string observacion)
         {
             var url   = ConfigurationManager.AppSettings["SheetsWebhookUrl"];
@@ -50,17 +56,17 @@ namespace HORAS_LOCLES
 
             var payload = new
             {
-                cedula   = (cedula ?? "").Trim(),
-                mensaje  = (observacion ?? "").Trim(),
+                cedula    = (cedula ?? "").Trim(),
+                mensaje   = (observacion ?? "").Trim(),
                 // si prefieres usar SIEMPRE la hora del script, puedes quitar esta línea:
                 fecha_ing = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
-                token    = token
+                token     = token
             };
 
             await PostToGoogleAppsScriptAsync(url, payload);
         }
 
-        // Botón Marcar (solo Sheets)
+        // Botón "Marcar"
         private async void button1_Click(object sender, EventArgs e)
         {
             var cedula = (txt_cedula.Text ?? "").Trim();
