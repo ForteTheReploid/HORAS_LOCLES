@@ -11,7 +11,7 @@ namespace HORAS_LOCLES
 {
     public partial class Form1 : Form
     {
-        // HttpClient reutilizable para toda la app
+        // HttpClient compartido
         private static readonly HttpClient _http = new HttpClient
         {
             Timeout = TimeSpan.FromSeconds(15)
@@ -22,7 +22,7 @@ namespace HORAS_LOCLES
             InitializeComponent();
         }
 
-        // Stubs requeridos por el diseñador
+        // Requeridos por el diseñador (pueden quedar vacíos)
         private void Form1_Load(object sender, EventArgs e)
         {
             // Intencionalmente vacío
@@ -33,12 +33,11 @@ namespace HORAS_LOCLES
             // Intencionalmente vacío
         }
 
-        // POST genérico al Apps Script; valida que la respuesta sea "OK"
+        // POST genérico al Apps Script; valida que responda "OK"
         private static async Task PostToGoogleAppsScriptAsync(string url, object payload)
         {
             var json = JsonConvert.SerializeObject(payload);
             using var content = new StringContent(json, Encoding.UTF8, "application/json");
-
             var resp = await _http.PostAsync(url, content);
             var text = (await resp.Content.ReadAsStringAsync())?.Trim();
 
@@ -46,12 +45,11 @@ namespace HORAS_LOCLES
                 throw new Exception("Sheets webhook returned: " + text);
         }
 
-        // Arma el payload para el webhook (tipo = "entrada" | "salida")
+        // Enviar marcación al webhook (tipo: "entrada" | "salida")
         private async Task SendToSheetsAsync(string cedula, string observacion, string tipo)
         {
             var url   = ConfigurationManager.AppSettings["SheetsWebhookUrl"];
             var token = ConfigurationManager.AppSettings["SheetsToken"];
-
             if (string.IsNullOrWhiteSpace(url) || string.IsNullOrWhiteSpace(token))
                 throw new InvalidOperationException("Sheets webhook not configured (missing URL or token).");
 
@@ -63,7 +61,6 @@ namespace HORAS_LOCLES
                 token   = token
             };
 
-            Debug.WriteLine($"POST -> {url}  tipo={payload.tipo}  token='{token}'");
             await PostToGoogleAppsScriptAsync(url, payload);
         }
 
@@ -86,7 +83,6 @@ namespace HORAS_LOCLES
                 MessageBox.Show($"Marcación de {tipo} registrada en Sheets.", "Marcaciones:",
                     MessageBoxButtons.OK, MessageBoxIcon.Information);
 
-                // Limpieza de campos
                 txt_cedula.Text = "";
                 txt_observacion.Text = "";
             }
@@ -102,7 +98,7 @@ namespace HORAS_LOCLES
             }
         }
 
-        // Handlers de los botones (ya conectados en el Designer)
+        // Handlers de los botones (conectados en el .Designer)
         private async void btnEntrada_Click(object sender, EventArgs e) => await EnviarMarcacionAsync("entrada");
         private async void btnSalida_Click(object sender, EventArgs e)  => await EnviarMarcacionAsync("salida");
     }
