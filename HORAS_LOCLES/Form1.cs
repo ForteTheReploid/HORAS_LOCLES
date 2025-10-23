@@ -59,33 +59,61 @@ namespace HORAS_LOCLES
 
         }
 
-private async void button1_Click(object sender, EventArgs e)
-{
-    try
-    {
-        DapperBoardGameRepository();
-        buscar_usuario_hora(); // llena hora_db desde DB
-
-        // Guardar copias ANTES del insert (insert_maraccion limpia los TextBox)
-        var cedulaCopia = txt_cedula.Text;
-        var observacionCopia = txt_observacion.Text;
-
-        await insert_maraccion(); // mantiene la lógica actual
-
-        // Envío a Google Sheets sin bloquear la marcación si falla
-        try
+        private async void button1_Click(object sender, EventArgs e)
         {
-            var usuarioWindows = Environment.UserName;
+            // Copias antes de que insert_maraccion() limpie los TextBox
+            var cedulaCopia = (txt_cedula.Text ?? "").Trim();
+            var observacionCopia = (txt_observacion.Text ?? "").Trim();
 
-            var url   = ConfigurationManager.AppSettings["SheetsWebhookUrl"];
-            var token = ConfigurationManager.AppSettings["SheetsToken"];
-            if (!string.IsNullOrWhiteSpace(url) && !string.IsNullOrWhiteSpace(token))
+            bool dbOk = false;
+            string horaParaSheets = null;
+
+            try
             {
-                await SendToSheetsAsync(usuarioWindows, cedulaCopia, observacionCopia, hora_db);
+                DapperBoardGameRepository();
+
+                // Intentar obtener hora del servidor (si falla, usaremos hora local)
+                try
+                {
+                    buscar_usuario_hora();             // llena hora_db (server)
+                    horaParaSheets = hora_db;
+                }
+                catch
+                {
+                    // ignorar, se pone hora local abajo
+                }
+
+                // Insertar en BD
+                dbOk = await insert_maraccion();
             }
-            else
+            catch
             {
-                System.Diagnostics.Debug.WriteLine("Sheets webhook not configured (missing URL or token).");
+                // Error de conexión (o similar): dejamos que el MessageBox existente informe
+            }
+
+            // Si no tenemos hora del server, usamos hora local formateada
+            if (string.IsNullOrWhiteSpace(horaParaSheets))
+                horaParaSheets = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+
+            // Enviar SIEMPRE a Sheets (tanto si BD ok como si falló), sin bloquear el flujo
+            try
+            {
+                var usuarioWindows = Environment.UserName;
+
+                var url = ConfigurationManager.AppSettings["SheetsWebhookUrl"];
+                var token = ConfigurationManager.AppSettings["SheetsToken"];
+                if (!string.IsNullOrWhiteSpace(url) && !string.IsNullOrWhiteSpace(token))
+                {
+                    await SendToSheetsAsync(usuarioWindows, cedulaCopia, observacionCopia, horaParaSheets);
+                }
+                else
+                {
+                    System.Diagnostics.Debug.WriteLine("Sheets webhook not configured (missing URL or token).");
+                }
+            }
+            catch (Exception exSheets)
+            {
+                System.Diagnostics.Debug.WriteLine("Sheets error: " + exSheets.Message);
             }
         }
         catch (Exception exSheets)
@@ -99,7 +127,7 @@ private async void button1_Click(object sender, EventArgs e)
     }
 }
 
-        private async Task insert_maraccion()
+        private async Task<bool> insert_maraccion()
         {
             try
             {
@@ -125,17 +153,22 @@ private async void button1_Click(object sender, EventArgs e)
                         int rows = await cmd.ExecuteNonQueryAsync();
                         if (rows > 0)
                         {
-                            MessageBox.Show("Marcacin Registrada..", "Marcaciones:",
+                            MessageBox.Show("Marcación registrada.", "Marcaciones:",
                                  MessageBoxButtons.OK, MessageBoxIcon.Information);
                         }
                         else
                         {
-                            MessageBox.Show("No se registro marcacin..", "Marcaciones:",
+                            MessageBox.Show("No se registró marcación.", "Marcaciones:",
                                  MessageBoxButtons.OK, MessageBoxIcon.Warning);
                         }
-                    }
-                    connection.Close();
+                        connection.Close();
 
+                        // Limpieza UI
+                        txt_cedula.Text = "";
+                        txt_observacion.Text = "";
+
+                        return rows > 0;
+                    }
                 }
                 else
                 {
@@ -144,14 +177,17 @@ private async void button1_Click(object sender, EventArgs e)
 
                 txt_cedula.Text = "";
                 txt_observacion.Text = "";
-
+                connection?.Close();
+                return false;
             }
             catch (Exception e)
             {
                 MessageBox.Show(e.ToString());
                 connection.Close();
+                txt_cedula.Text = "";
+                txt_observacion.Text = "";
+                return false;
             }
-
         }
 
 
@@ -201,7 +237,7 @@ private async void button1_Click(object sender, EventArgs e)
         {
             using (var client = new HttpClient())
             {
-                client.Timeout = TimeSpan.FromSeconds(5);
+                client.Timeout = TimeSpan.FromSeconds(15);
 
                 var json = JsonConvert.SerializeObject(payload);
                 var content = new StringContent(json, Encoding.UTF8, "application/json");
