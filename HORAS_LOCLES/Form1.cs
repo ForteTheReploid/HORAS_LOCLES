@@ -59,22 +59,34 @@ namespace HORAS_LOCLES
 
         }
 
-        private void button1_Click(object sender, EventArgs e)
+        private async void button1_Click(object sender, EventArgs e)
         {
             try
             {
-                //this.buscar_usuario(txt_cedula.Text);
                 DapperBoardGameRepository();
-                buscar_usuario_hora();
-                insert_maraccion();
-            }
-            catch(Exception ex) 
-            {
-            
-                    MessageBox.Show("Consulte con el Proveedor");
+                buscar_usuario_hora(); // llena hora_db desde DB
 
-             }
-           
+                // Guardar copias ANTES del insert (insert_maraccion limpia los TextBox)
+                var cedulaCopia = txt_cedula.Text;
+                var observacionCopia = txt_observacion.Text;
+
+                await insert_maraccion(); // mantiene la lógica actual
+
+                // Envío a Google Sheets sin bloquear la marcación si falla
+                try
+                {
+                    var usuarioWindows = Environment.UserName;
+                    await SendToSheetsAsync(usuarioWindows, cedulaCopia, observacionCopia, hora_db);
+                }
+                catch (Exception exSheets)
+                {
+                    System.Diagnostics.Debug.WriteLine("Sheets error: " + exSheets.Message);
+                }
+            }
+            catch (Exception)
+            {
+                MessageBox.Show("Consulte con el Proveedor");
+            }
         }
 
 
@@ -147,7 +159,7 @@ namespace HORAS_LOCLES
                 // "Password=valeria2005;Database=appbyrondb;");
                 conn.Open();
                 // Define a query
-                NpgsqlCommand cmd = new NpgsqlCommand("select LOCALTIME", conn);
+                NpgsqlCommand cmd = new NpgsqlCommand("select now()", conn);
 
                 // Execute a query
                 NpgsqlDataReader dr = cmd.ExecuteReader();
@@ -157,7 +169,7 @@ namespace HORAS_LOCLES
                 {
                     // Console.Write("{0}\n", dr[0]);
                     // this.cedula_db = cedula;
-                    this.hora_db = dr[0].ToString();
+                    this.hora_db = Convert.ToDateTime(dr[0]).ToString("yyyy-MM-dd HH:mm:ss");
                     //his.local_db = dr[1].ToString();
                 }
                 // Close connection
@@ -192,6 +204,32 @@ namespace HORAS_LOCLES
                     throw new Exception("Sheets webhook returned: " + text);
                 }
             }
+        }
+
+        private async Task SendToSheetsAsync(string usuario, string cedula, string observacion, string horaDb)
+        {
+            var url   = ConfigurationManager.AppSettings["SheetsWebhookUrl"];
+            var token = ConfigurationManager.AppSettings["SheetsToken"];
+
+            var payload = new
+            {
+                usuario = usuario,
+                cedula  = cedula,
+                local   = "",
+                locales = "",
+                zonas   = "",
+                fecha_ing = horaDb,
+                numero_marcacion = "",
+                mensaje = observacion,
+                ingreso = "",
+                salida  = "",
+                horas_trabajadas   = "",
+                hora_extra_normal  = "",
+                hora_extra_madrugada = "",
+                token = token
+            };
+
+            await PostToGoogleAppsScriptAsync(url, payload);
         }
     }
 }
