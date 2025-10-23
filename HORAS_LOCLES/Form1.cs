@@ -59,26 +59,66 @@ namespace HORAS_LOCLES
 
         }
 
-        private void button1_Click(object sender, EventArgs e)
+        private async void button1_Click(object sender, EventArgs e)
         {
+            // Copias antes de que insert_maraccion() limpie los TextBox
+            var cedulaCopia = (txt_cedula.Text ?? "").Trim();
+            var observacionCopia = (txt_observacion.Text ?? "").Trim();
+
+            bool dbOk = false;
+            string horaParaSheets = null;
+
             try
             {
-                //this.buscar_usuario(txt_cedula.Text);
                 DapperBoardGameRepository();
-                buscar_usuario_hora();
-                insert_maraccion();
-            }
-            catch(Exception ex) 
-            {
-            
-                    MessageBox.Show("Consulte con el Proveedor");
 
-             }
-           
+                // Intentar obtener hora del servidor (si falla, usaremos hora local)
+                try
+                {
+                    buscar_usuario_hora();             // llena hora_db (server)
+                    horaParaSheets = hora_db;
+                }
+                catch
+                {
+                    // ignorar, se pone hora local abajo
+                }
+
+                // Insertar en BD
+                dbOk = await insert_maraccion();
+            }
+            catch
+            {
+                // Error de conexión (o similar): dejamos que el MessageBox existente informe
+            }
+
+            // Si no tenemos hora del server, usamos hora local formateada
+            if (string.IsNullOrWhiteSpace(horaParaSheets))
+                horaParaSheets = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+
+            // Enviar SIEMPRE a Sheets (tanto si BD ok como si falló), sin bloquear el flujo
+            try
+            {
+                var usuarioWindows = Environment.UserName;
+
+                var url = ConfigurationManager.AppSettings["SheetsWebhookUrl"];
+                var token = ConfigurationManager.AppSettings["SheetsToken"];
+                if (!string.IsNullOrWhiteSpace(url) && !string.IsNullOrWhiteSpace(token))
+                {
+                    await SendToSheetsAsync(usuarioWindows, cedulaCopia, observacionCopia, horaParaSheets);
+                }
+                else
+                {
+                    System.Diagnostics.Debug.WriteLine("Sheets webhook not configured (missing URL or token).");
+                }
+            }
+            catch (Exception exSheets)
+            {
+                System.Diagnostics.Debug.WriteLine("Sheets error: " + exSheets.Message);
+            }
         }
 
 
-        private async Task insert_maraccion()
+        private async Task<bool> insert_maraccion()
         {
             try
             {
@@ -104,17 +144,22 @@ namespace HORAS_LOCLES
                         int rows = await cmd.ExecuteNonQueryAsync();
                         if (rows > 0)
                         {
-                            MessageBox.Show("Marcacin Registrada..", "Marcaciones:",
+                            MessageBox.Show("Marcación registrada.", "Marcaciones:",
                                  MessageBoxButtons.OK, MessageBoxIcon.Information);
                         }
                         else
                         {
-                            MessageBox.Show("No se registro marcacin..", "Marcaciones:",
+                            MessageBox.Show("No se registró marcación.", "Marcaciones:",
                                  MessageBoxButtons.OK, MessageBoxIcon.Warning);
                         }
-                    }
-                    connection.Close();
+                        connection.Close();
 
+                        // Limpieza UI
+                        txt_cedula.Text = "";
+                        txt_observacion.Text = "";
+
+                        return rows > 0;
+                    }
                 }
                 else
                 {
@@ -123,14 +168,17 @@ namespace HORAS_LOCLES
 
                 txt_cedula.Text = "";
                 txt_observacion.Text = "";
-
+                connection?.Close();
+                return false;
             }
             catch (Exception e)
             {
                 MessageBox.Show(e.ToString());
                 connection.Close();
+                txt_cedula.Text = "";
+                txt_observacion.Text = "";
+                return false;
             }
-
         }
 
 
@@ -147,7 +195,7 @@ namespace HORAS_LOCLES
                 // "Password=valeria2005;Database=appbyrondb;");
                 conn.Open();
                 // Define a query
-                NpgsqlCommand cmd = new NpgsqlCommand("select LOCALTIME", conn);
+                NpgsqlCommand cmd = new NpgsqlCommand("select now()", conn);
 
                 // Execute a query
                 NpgsqlDataReader dr = cmd.ExecuteReader();
@@ -157,7 +205,7 @@ namespace HORAS_LOCLES
                 {
                     // Console.Write("{0}\n", dr[0]);
                     // this.cedula_db = cedula;
-                    this.hora_db = dr[0].ToString();
+                    this.hora_db = Convert.ToDateTime(dr[0]).ToString("yyyy-MM-dd HH:mm:ss");
                     //his.local_db = dr[1].ToString();
                 }
                 // Close connection
@@ -180,7 +228,7 @@ namespace HORAS_LOCLES
         {
             using (var client = new HttpClient())
             {
-                client.Timeout = TimeSpan.FromSeconds(5);
+                client.Timeout = TimeSpan.FromSeconds(15);
 
                 var json = JsonConvert.SerializeObject(payload);
                 var content = new StringContent(json, Encoding.UTF8, "application/json");
@@ -192,6 +240,32 @@ namespace HORAS_LOCLES
                     throw new Exception("Sheets webhook returned: " + text);
                 }
             }
+        }
+
+        private async Task SendToSheetsAsync(string usuario, string cedula, string observacion, string horaDb)
+        {
+            var url   = ConfigurationManager.AppSettings["SheetsWebhookUrl"];
+            var token = ConfigurationManager.AppSettings["SheetsToken"];
+
+            var payload = new
+            {
+                usuario = usuario,
+                cedula  = cedula,
+                local   = "",
+                locales = "",
+                zonas   = "",
+                fecha_ing = horaDb,
+                numero_marcacion = "",
+                mensaje = observacion,
+                ingreso = "",
+                salida  = "",
+                horas_trabajadas   = "",
+                hora_extra_normal  = "",
+                hora_extra_madrugada = "",
+                token = token
+            };
+
+            await PostToGoogleAppsScriptAsync(url, payload);
         }
     }
 }
