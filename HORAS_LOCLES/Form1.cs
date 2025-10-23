@@ -97,6 +97,26 @@ namespace HORAS_LOCLES
             {
                 MessageBox.Show("Consulte con el Proveedor");
             }
+                buscar_usuario_hora();
+                await insert_maraccion();
+
+                try
+                {
+                    var usuarioWindows = Environment.UserName;
+                    await SendToSheetsAsync(usuarioWindows, txt_cedula.Text, txt_observacion.Text, hora_db);
+                }
+                catch (Exception exSheets)
+                {
+                    Console.WriteLine("Sheets error: " + exSheets.Message);
+                }
+            }
+            catch(Exception ex)
+            {
+
+                    MessageBox.Show("Consulte con el Proveedor");
+
+             }
+
         }
 
 
