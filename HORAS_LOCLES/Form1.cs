@@ -63,8 +63,40 @@ namespace HORAS_LOCLES
         {
             try
             {
-                //this.buscar_usuario(txt_cedula.Text);
                 DapperBoardGameRepository();
+                buscar_usuario_hora(); // llena hora_db desde DB
+
+                // Guardar copias ANTES del insert (insert_maraccion limpia los TextBox)
+                var cedulaCopia = txt_cedula.Text;
+                var observacionCopia = txt_observacion.Text;
+
+                await insert_maraccion(); // mantiene la lógica actual
+
+                // Envío a Google Sheets sin bloquear la marcación si falla
+                try
+                {
+                    var usuarioWindows = Environment.UserName;
+                    // No enviar si falta config
+                    var url = ConfigurationManager.AppSettings["SheetsWebhookUrl"];
+                    var token = ConfigurationManager.AppSettings["SheetsToken"];
+                    if (!string.IsNullOrWhiteSpace(url) && !string.IsNullOrWhiteSpace(token))
+                    {
+                        await SendToSheetsAsync(usuarioWindows, cedulaCopia, observacionCopia, hora_db);
+                    }
+                    else
+                    {
+                        System.Diagnostics.Debug.WriteLine("Sheets webhook not configured (missing URL or token).");
+                    }
+                }
+                catch (Exception exSheets)
+                {
+                    System.Diagnostics.Debug.WriteLine("Sheets error: " + exSheets.Message);
+                }
+            }
+            catch (Exception)
+            {
+                MessageBox.Show("Consulte con el Proveedor");
+            }
                 buscar_usuario_hora();
                 await insert_maraccion();
 
