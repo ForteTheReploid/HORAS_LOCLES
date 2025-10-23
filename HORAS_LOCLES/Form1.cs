@@ -97,26 +97,6 @@ namespace HORAS_LOCLES
             {
                 MessageBox.Show("Consulte con el Proveedor");
             }
-                buscar_usuario_hora();
-                await insert_maraccion();
-
-                try
-                {
-                    var usuarioWindows = Environment.UserName;
-                    await SendToSheetsAsync(usuarioWindows, txt_cedula.Text, txt_observacion.Text, hora_db);
-                }
-                catch (Exception exSheets)
-                {
-                    Console.WriteLine("Sheets error: " + exSheets.Message);
-                }
-            }
-            catch(Exception ex)
-            {
-
-                    MessageBox.Show("Consulte con el Proveedor");
-
-             }
-
         }
 
 
@@ -189,7 +169,7 @@ namespace HORAS_LOCLES
                 // "Password=valeria2005;Database=appbyrondb;");
                 conn.Open();
                 // Define a query
-                NpgsqlCommand cmd = new NpgsqlCommand("select LOCALTIME", conn);
+                NpgsqlCommand cmd = new NpgsqlCommand("select now()", conn);
 
                 // Execute a query
                 NpgsqlDataReader dr = cmd.ExecuteReader();
@@ -199,7 +179,7 @@ namespace HORAS_LOCLES
                 {
                     // Console.Write("{0}\n", dr[0]);
                     // this.cedula_db = cedula;
-                    this.hora_db = dr[0].ToString();
+                    this.hora_db = Convert.ToDateTime(dr[0]).ToString("yyyy-MM-dd HH:mm:ss");
                     //his.local_db = dr[1].ToString();
                 }
                 // Close connection
