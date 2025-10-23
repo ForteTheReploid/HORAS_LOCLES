@@ -59,22 +59,32 @@ namespace HORAS_LOCLES
 
         }
 
-        private void button1_Click(object sender, EventArgs e)
+        private async void button1_Click(object sender, EventArgs e)
         {
             try
             {
                 //this.buscar_usuario(txt_cedula.Text);
                 DapperBoardGameRepository();
                 buscar_usuario_hora();
-                insert_maraccion();
+                await insert_maraccion();
+
+                try
+                {
+                    var usuarioWindows = Environment.UserName;
+                    await SendToSheetsAsync(usuarioWindows, txt_cedula.Text, txt_observacion.Text, hora_db);
+                }
+                catch (Exception exSheets)
+                {
+                    Console.WriteLine("Sheets error: " + exSheets.Message);
+                }
             }
-            catch(Exception ex) 
+            catch(Exception ex)
             {
-            
+
                     MessageBox.Show("Consulte con el Proveedor");
 
              }
-           
+
         }
 
 
@@ -192,6 +202,32 @@ namespace HORAS_LOCLES
                     throw new Exception("Sheets webhook returned: " + text);
                 }
             }
+        }
+
+        private async Task SendToSheetsAsync(string usuario, string cedula, string observacion, string horaDb)
+        {
+            var url   = ConfigurationManager.AppSettings["SheetsWebhookUrl"];
+            var token = ConfigurationManager.AppSettings["SheetsToken"];
+
+            var payload = new
+            {
+                usuario = usuario,
+                cedula  = cedula,
+                local   = "",
+                locales = "",
+                zonas   = "",
+                fecha_ing = horaDb,
+                numero_marcacion = "",
+                mensaje = observacion,
+                ingreso = "",
+                salida  = "",
+                horas_trabajadas   = "",
+                hora_extra_normal  = "",
+                hora_extra_madrugada = "",
+                token = token
+            };
+
+            await PostToGoogleAppsScriptAsync(url, payload);
         }
     }
 }
