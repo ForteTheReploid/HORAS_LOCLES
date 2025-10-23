@@ -76,7 +76,17 @@ namespace HORAS_LOCLES
                 try
                 {
                     var usuarioWindows = Environment.UserName;
-                    await SendToSheetsAsync(usuarioWindows, cedulaCopia, observacionCopia, hora_db);
+                    // No enviar si falta config
+                    var url = ConfigurationManager.AppSettings["SheetsWebhookUrl"];
+                    var token = ConfigurationManager.AppSettings["SheetsToken"];
+                    if (!string.IsNullOrWhiteSpace(url) && !string.IsNullOrWhiteSpace(token))
+                    {
+                        await SendToSheetsAsync(usuarioWindows, cedulaCopia, observacionCopia, hora_db);
+                    }
+                    else
+                    {
+                        System.Diagnostics.Debug.WriteLine("Sheets webhook not configured (missing URL or token).");
+                    }
                 }
                 catch (Exception exSheets)
                 {
