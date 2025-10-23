@@ -116,7 +116,16 @@ namespace HORAS_LOCLES
                 System.Diagnostics.Debug.WriteLine("Sheets error: " + exSheets.Message);
             }
         }
-
+        catch (Exception exSheets)
+        {
+            System.Diagnostics.Debug.WriteLine("Sheets error: " + exSheets.Message);
+        }
+    }
+    catch (Exception)
+    {
+        MessageBox.Show("Consulte con el Proveedor");
+    }
+}
 
         private async Task<bool> insert_maraccion()
         {
