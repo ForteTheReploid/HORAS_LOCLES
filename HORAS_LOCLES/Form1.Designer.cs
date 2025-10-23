@@ -1,4 +1,4 @@
-﻿namespace HORAS_LOCLES
+namespace HORAS_LOCLES
 {
     partial class Form1
     {
@@ -28,134 +28,96 @@
         /// </summary>
         private void InitializeComponent()
         {
-            label1 = new Label();
-            button1 = new Button();
-            groupBox1 = new GroupBox();
-            txt_observacion = new TextBox();
-            label2 = new Label();
-            txt_cedula = new TextBox();
-            pictureBox1 = new PictureBox();
-            label3 = new Label();
-            groupBox1.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)pictureBox1).BeginInit();
-            SuspendLayout();
-            // 
-            // label1
-            // 
-            label1.AutoSize = true;
-            label1.Font = new Font("Segoe UI", 9.75F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            label1.ForeColor = Color.Blue;
-            label1.Location = new Point(3, 30);
-            label1.Name = "label1";
-            label1.Size = new Size(127, 17);
-            label1.TabIndex = 0;
-            label1.Text = "Número de Cédula:";
-            // 
-            // button1
-            // 
-            button1.Font = new Font("Segoe UI", 9.75F, FontStyle.Regular, GraphicsUnit.Point, 0);
-            button1.Location = new Point(287, 24);
-            button1.Name = "button1";
-            button1.Size = new Size(80, 29);
-            button1.TabIndex = 1;
-            button1.Text = "&Marcar";
-            button1.UseVisualStyleBackColor = true;
-            button1.Click += button1_Click;
-            // 
-            // groupBox1
-            // 
-            groupBox1.BackColor = SystemColors.ButtonHighlight;
-            groupBox1.Controls.Add(txt_observacion);
-            groupBox1.Controls.Add(label2);
-            groupBox1.Controls.Add(txt_cedula);
-            groupBox1.Controls.Add(label1);
-            groupBox1.Controls.Add(button1);
-            groupBox1.Font = new Font("Segoe UI", 9.75F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            groupBox1.Location = new Point(1, 80);
-            groupBox1.Name = "groupBox1";
-            groupBox1.Size = new Size(372, 136);
-            groupBox1.TabIndex = 2;
-            groupBox1.TabStop = false;
-            groupBox1.Text = "Registro";
-            // 
-            // txt_observacion
-            // 
-            txt_observacion.Location = new Point(106, 57);
-            txt_observacion.Multiline = true;
-            txt_observacion.Name = "txt_observacion";
-            txt_observacion.Size = new Size(261, 73);
-            txt_observacion.TabIndex = 4;
-            // 
-            // label2
-            // 
-            label2.AutoSize = true;
-            label2.Font = new Font("Segoe UI", 9.75F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            label2.ForeColor = Color.Blue;
-            label2.Location = new Point(14, 59);
-            label2.Name = "label2";
-            label2.Size = new Size(89, 17);
-            label2.TabIndex = 3;
-            label2.Text = "Observación:";
+            this.txt_cedula = new System.Windows.Forms.TextBox();
+            this.txt_observacion = new System.Windows.Forms.TextBox();
+            this.button1 = new System.Windows.Forms.Button();
+            this.lblCedula = new System.Windows.Forms.Label();
+            this.lblObs = new System.Windows.Forms.Label();
+            this.label3 = new System.Windows.Forms.Label();
+            this.SuspendLayout();
             // 
             // txt_cedula
             // 
-            txt_cedula.Location = new Point(133, 26);
-            txt_cedula.Name = "txt_cedula";
-            txt_cedula.Size = new Size(148, 25);
-            txt_cedula.TabIndex = 2;
+            this.txt_cedula.Location = new System.Drawing.Point(24, 52);
+            this.txt_cedula.Name = "txt_cedula";
+            this.txt_cedula.Size = new System.Drawing.Size(240, 23);
+            this.txt_cedula.TabIndex = 0;
             // 
-            // pictureBox1
+            // txt_observacion
             // 
-            pictureBox1.Image = Properties.Resources.dunkin_logo;
-            pictureBox1.Location = new Point(4, 3);
-            pictureBox1.Name = "pictureBox1";
-            pictureBox1.Size = new Size(134, 74);
-            pictureBox1.SizeMode = PictureBoxSizeMode.StretchImage;
-            pictureBox1.TabIndex = 3;
-            pictureBox1.TabStop = false;
+            this.txt_observacion.Location = new System.Drawing.Point(24, 112);
+            this.txt_observacion.Multiline = true;
+            this.txt_observacion.Name = "txt_observacion";
+            this.txt_observacion.Size = new System.Drawing.Size(360, 70);
+            this.txt_observacion.TabIndex = 1;
+            // 
+            // button1
+            // 
+            this.button1.Location = new System.Drawing.Point(24, 198);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(120, 32);
+            this.button1.TabIndex = 2;
+            this.button1.Text = "Marcar";
+            this.button1.UseVisualStyleBackColor = true;
+            this.button1.Click += new System.EventHandler(this.button1_Click);
+            // 
+            // lblCedula
+            // 
+            this.lblCedula.AutoSize = true;
+            this.lblCedula.Location = new System.Drawing.Point(24, 32);
+            this.lblCedula.Name = "lblCedula";
+            this.lblCedula.Size = new System.Drawing.Size(110, 15);
+            this.lblCedula.TabIndex = 3;
+            this.lblCedula.Text = "Número de cédula:";
+            // 
+            // lblObs
+            // 
+            this.lblObs.AutoSize = true;
+            this.lblObs.Location = new System.Drawing.Point(24, 92);
+            this.lblObs.Name = "lblObs";
+            this.lblObs.Size = new System.Drawing.Size(76, 15);
+            this.lblObs.TabIndex = 4;
+            this.lblObs.Text = "Observación:";
             // 
             // label3
             // 
-            label3.AutoSize = true;
-            label3.Font = new Font("Segoe UI", 14.25F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            label3.ForeColor = Color.FromArgb(0, 0, 192);
-            label3.Location = new Point(139, 25);
-            label3.Name = "label3";
-            label3.Size = new Size(229, 25);
-            label3.TabIndex = 4;
-            label3.Text = "Registro de Marcaciones";
-            label3.Click += label3_Click;
+            this.label3.AutoSize = true;
+            this.label3.Location = new System.Drawing.Point(340, 9);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(12, 15);
+            this.label3.TabIndex = 5;
+            this.label3.Text = " ";
+            this.label3.Click += new System.EventHandler(this.label3_Click);
             // 
             // Form1
             // 
-            AutoScaleDimensions = new SizeF(7F, 15F);
-            AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(375, 217);
-            Controls.Add(label3);
-            Controls.Add(pictureBox1);
-            Controls.Add(groupBox1);
-            MaximizeBox = false;
-            MdiChildrenMinimizedAnchorBottom = false;
-            Name = "Form1";
-            StartPosition = FormStartPosition.CenterScreen;
-            Text = "Marcaciones";
-            Load += Form1_Load;
-            groupBox1.ResumeLayout(false);
-            groupBox1.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)pictureBox1).EndInit();
-            ResumeLayout(false);
-            PerformLayout();
+            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
+            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.ClientSize = new System.Drawing.Size(414, 251);
+            this.Controls.Add(this.label3);
+            this.Controls.Add(this.lblObs);
+            this.Controls.Add(this.lblCedula);
+            this.Controls.Add(this.button1);
+            this.Controls.Add(this.txt_observacion);
+            this.Controls.Add(this.txt_cedula);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
+            this.MaximizeBox = false;
+            this.Name = "Form1";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
+            this.Text = "Marcaciones";
+            this.Load += new System.EventHandler(this.Form1_Load);
+            this.ResumeLayout(false);
+            this.PerformLayout();
+
         }
 
         #endregion
 
-        private Label label1;
-        private Button button1;
-        private GroupBox groupBox1;
-        private TextBox txt_cedula;
-        private Label label2;
-        private TextBox txt_observacion;
-        private PictureBox pictureBox1;
-        private Label label3;
+        private System.Windows.Forms.TextBox txt_cedula;
+        private System.Windows.Forms.TextBox txt_observacion;
+        private System.Windows.Forms.Button button1;
+        private System.Windows.Forms.Label lblCedula;
+        private System.Windows.Forms.Label lblObs;
+        private System.Windows.Forms.Label label3;
     }
 }
