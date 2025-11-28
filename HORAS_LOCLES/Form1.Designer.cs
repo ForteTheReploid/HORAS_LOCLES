@@ -31,11 +31,13 @@ namespace HORAS_LOCLES
             this.txt_observacion = new System.Windows.Forms.TextBox();
             this.btnEntrada = new System.Windows.Forms.Button();
             this.btnSalida = new System.Windows.Forms.Button();
+            this.btnSalidaPartido = new System.Windows.Forms.Button();
+            this.btnEntradaPartido = new System.Windows.Forms.Button();
             this.lblCedula = new System.Windows.Forms.Label();
             this.lblObs = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
             this.SuspendLayout();
-            // 
+            //
             // txt_cedula
             // 
             this.txt_cedula.Location = new System.Drawing.Point(24, 52);
@@ -70,9 +72,29 @@ namespace HORAS_LOCLES
             this.btnSalida.Text = "Salida";
             this.btnSalida.UseVisualStyleBackColor = true;
             this.btnSalida.Click += new System.EventHandler(this.btnSalida_Click);
-            // 
+            //
+            // btnSalidaPartido
+            //
+            this.btnSalidaPartido.Location = new System.Drawing.Point(24, 246);
+            this.btnSalidaPartido.Name = "btnSalidaPartido";
+            this.btnSalidaPartido.Size = new System.Drawing.Size(180, 32);
+            this.btnSalidaPartido.TabIndex = 6;
+            this.btnSalidaPartido.Text = "Salida Turno partido";
+            this.btnSalidaPartido.UseVisualStyleBackColor = true;
+            this.btnSalidaPartido.Click += new System.EventHandler(this.btnSalidaPartido_Click);
+            //
+            // btnEntradaPartido
+            //
+            this.btnEntradaPartido.Location = new System.Drawing.Point(220, 246);
+            this.btnEntradaPartido.Name = "btnEntradaPartido";
+            this.btnEntradaPartido.Size = new System.Drawing.Size(180, 32);
+            this.btnEntradaPartido.TabIndex = 7;
+            this.btnEntradaPartido.Text = "Entrada Turno partido";
+            this.btnEntradaPartido.UseVisualStyleBackColor = true;
+            this.btnEntradaPartido.Click += new System.EventHandler(this.btnEntradaPartido_Click);
+            //
             // lblCedula
-            // 
+            //
             this.lblCedula.AutoSize = true;
             this.lblCedula.Location = new System.Drawing.Point(24, 32);
             this.lblCedula.Name = "lblCedula";
@@ -95,18 +117,20 @@ namespace HORAS_LOCLES
             this.label3.Location = new System.Drawing.Point(340, 9);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(12, 15);
-            this.label3.TabIndex = 6;
+            this.label3.TabIndex = 8;
             this.label3.Text = " ";
             this.label3.Click += new System.EventHandler(this.label3_Click);
-            // 
+            //
             // Form1
-            // 
+            //
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(414, 251);
+            this.ClientSize = new System.Drawing.Size(414, 300);
             this.Controls.Add(this.label3);
             this.Controls.Add(this.lblObs);
             this.Controls.Add(this.lblCedula);
+            this.Controls.Add(this.btnEntradaPartido);
+            this.Controls.Add(this.btnSalidaPartido);
             this.Controls.Add(this.btnSalida);
             this.Controls.Add(this.btnEntrada);
             this.Controls.Add(this.txt_observacion);
@@ -128,6 +152,8 @@ namespace HORAS_LOCLES
         private System.Windows.Forms.TextBox txt_observacion;
         private System.Windows.Forms.Button btnEntrada;
         private System.Windows.Forms.Button btnSalida;
+        private System.Windows.Forms.Button btnSalidaPartido;
+        private System.Windows.Forms.Button btnEntradaPartido;
         private System.Windows.Forms.Label lblCedula;
         private System.Windows.Forms.Label lblObs;
         private System.Windows.Forms.Label label3;
