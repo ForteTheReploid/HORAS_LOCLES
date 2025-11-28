@@ -11,7 +11,6 @@ namespace HORAS_LOCLES
 {
     public partial class Form1 : Form
     {
-        // HttpClient compartido
         private static readonly HttpClient _http = new HttpClient
         {
             Timeout = TimeSpan.FromSeconds(15)
@@ -22,18 +21,10 @@ namespace HORAS_LOCLES
             InitializeComponent();
         }
 
-        // Requeridos por el diseñador (pueden quedar vacíos)
-        private void Form1_Load(object sender, EventArgs e)
-        {
-            // Intencionalmente vacío
-        }
+        private void Form1_Load(object sender, EventArgs e) { }
+        private void label3_Click(object sender, EventArgs e) { }
 
-        private void label3_Click(object sender, EventArgs e)
-        {
-            // Intencionalmente vacío
-        }
-
-        // POST genérico al Apps Script; valida que responda "OK"
+        // POST genérico al Apps Script: espera literalmente "OK"
         private static async Task PostToGoogleAppsScriptAsync(string url, object payload)
         {
             var json = JsonConvert.SerializeObject(payload);
@@ -45,7 +36,7 @@ namespace HORAS_LOCLES
                 throw new Exception("Sheets webhook returned: " + text);
         }
 
-        // Enviar marcación al webhook (tipo: "entrada" | "salida")
+        // Enviar marcación: tipo = entrada | salida | salida_partido | entrada_partido
         private async Task SendToSheetsAsync(string cedula, string observacion, string tipo)
         {
             var url   = ConfigurationManager.AppSettings["SheetsWebhookUrl"];
@@ -57,15 +48,35 @@ namespace HORAS_LOCLES
             {
                 cedula  = (cedula ?? "").Trim(),
                 mensaje = (observacion ?? "").Trim(),
-                tipo    = (tipo ?? "entrada").ToLower(), // "entrada" o "salida"
+                tipo    = (tipo ?? "entrada").ToLower(),
                 token   = token
             };
 
             await PostToGoogleAppsScriptAsync(url, payload);
         }
 
-        // Flujo común para ambos botones
-        private async Task EnviarMarcacionAsync(string tipo)
+        private void ToggleUI(bool enabled)
+        {
+            btnEntrada.Enabled = enabled;
+            btnSalida.Enabled = enabled;
+            btnSalidaPartido.Enabled = enabled;
+            btnEntradaPartido.Enabled = enabled;
+            txt_cedula.Enabled = enabled;
+            txt_observacion.Enabled = enabled;
+        }
+
+        private void Mensaje(bool ok, string titulo)
+        {
+            if (ok)
+                MessageBox.Show($"{titulo} registrada.", "Marcaciones",
+                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+            else
+                MessageBox.Show("No se pudo registrar en Sheets. Verifique su conexión e intente nuevamente.",
+                    "Marcaciones", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+        }
+
+        // Flujo común (no usar returns dentro de finalmente)
+        private async Task<bool> RegistrarMarcacionAsync(string tipo, string titulo)
         {
             var cedula = (txt_cedula.Text ?? "").Trim();
             var obs    = (txt_observacion.Text ?? "").Trim();
@@ -73,33 +84,52 @@ namespace HORAS_LOCLES
             if (string.IsNullOrWhiteSpace(cedula))
             {
                 MessageBox.Show("Ingrese Número de Cédula");
-                return;
+                return false;
             }
 
-            btnEntrada.Enabled = btnSalida.Enabled = false;
+            ToggleUI(false);
             try
             {
                 await SendToSheetsAsync(cedula, obs, tipo);
-                MessageBox.Show($"Marcación de {tipo} registrada en Sheets.", "Marcaciones:",
-                    MessageBoxButtons.OK, MessageBoxIcon.Information);
-
                 txt_cedula.Text = "";
                 txt_observacion.Text = "";
+                return true;
             }
             catch (Exception ex)
             {
                 Debug.WriteLine("Sheets error: " + ex.Message);
-                MessageBox.Show("No se pudo registrar en Sheets. Verifique su conexión e intente nuevamente.",
-                    "Marcaciones:", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return false;
             }
             finally
             {
-                btnEntrada.Enabled = btnSalida.Enabled = true;
+                ToggleUI(true);
             }
         }
 
-        // Handlers de los botones (conectados en el .Designer)
-        private async void btnEntrada_Click(object sender, EventArgs e) => await EnviarMarcacionAsync("entrada");
-        private async void btnSalida_Click(object sender, EventArgs e)  => await EnviarMarcacionAsync("salida");
+        // Handlers definitivos (asegúrate de que el Designer los tenga conectados)
+        private async void btnEntrada_Click(object sender, EventArgs e)
+        {
+            var ok = await RegistrarMarcacionAsync("entrada", "Entrada");
+            Mensaje(ok, "Entrada");
+        }
+
+        private async void btnSalida_Click(object sender, EventArgs e)
+        {
+            var ok = await RegistrarMarcacionAsync("salida", "Salida");
+            Mensaje(ok, "Salida");
+        }
+
+        private async void btnSalidaPartido_Click(object sender, EventArgs e)
+        {
+            var ok = await RegistrarMarcacionAsync("salida_partido", "Salida Turno partido");
+            Mensaje(ok, "Salida Turno partido");
+        }
+
+        private async void btnEntradaPartido_Click(object sender, EventArgs e)
+        {
+            var ok = await RegistrarMarcacionAsync("entrada_partido", "Entrada Turno partido");
+            Mensaje(ok, "Entrada Turno partido");
+        }
     }
 }
+
