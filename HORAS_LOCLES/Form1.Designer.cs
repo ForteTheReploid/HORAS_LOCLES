@@ -19,17 +19,20 @@ namespace HORAS_LOCLES
         private void InitializeComponent()
         {
             this.txt_cedula = new System.Windows.Forms.TextBox();
-            this.txt_clave = new System.Windows.Forms.TextBox();
+            this.txt_token = new System.Windows.Forms.TextBox();
             this.txt_observacion = new System.Windows.Forms.TextBox();
+
             this.btnEntrada = new System.Windows.Forms.Button();
             this.btnSalida = new System.Windows.Forms.Button();
             this.btnSalidaPartido = new System.Windows.Forms.Button();
             this.btnEntradaPartido = new System.Windows.Forms.Button();
             this.btnAlmuerzoSalida = new System.Windows.Forms.Button();
             this.btnAlmuerzoEntrada = new System.Windows.Forms.Button();
+
             this.lblCedula = new System.Windows.Forms.Label();
-            this.lblClave = new System.Windows.Forms.Label();
+            this.lblToken = new System.Windows.Forms.Label();
             this.lblObs = new System.Windows.Forms.Label();
+
             this.SuspendLayout();
 
             // txt_cedula
@@ -38,12 +41,12 @@ namespace HORAS_LOCLES
             this.txt_cedula.Size = new System.Drawing.Size(240, 23);
             this.txt_cedula.TabIndex = 0;
 
-            // txt_clave
-            this.txt_clave.Location = new System.Drawing.Point(24, 112);
-            this.txt_clave.Name = "txt_clave";
-            this.txt_clave.Size = new System.Drawing.Size(240, 23);
-            this.txt_clave.TabIndex = 1;
-            this.txt_clave.UseSystemPasswordChar = true;
+            // txt_token
+            this.txt_token.Location = new System.Drawing.Point(24, 112);
+            this.txt_token.Name = "txt_token";
+            this.txt_token.Size = new System.Drawing.Size(240, 23);
+            this.txt_token.TabIndex = 1;
+            this.txt_token.MaxLength = 6;
 
             // txt_observacion
             this.txt_observacion.Location = new System.Drawing.Point(24, 172);
@@ -114,13 +117,13 @@ namespace HORAS_LOCLES
             this.lblCedula.TabIndex = 9;
             this.lblCedula.Text = "Número de cédula:";
 
-            // lblClave
-            this.lblClave.AutoSize = true;
-            this.lblClave.Location = new System.Drawing.Point(24, 92);
-            this.lblClave.Name = "lblClave";
-            this.lblClave.Size = new System.Drawing.Size(39, 15);
-            this.lblClave.TabIndex = 10;
-            this.lblClave.Text = "Clave:";
+            // lblToken
+            this.lblToken.AutoSize = true;
+            this.lblToken.Location = new System.Drawing.Point(24, 92);
+            this.lblToken.Name = "lblToken";
+            this.lblToken.Size = new System.Drawing.Size(132, 15);
+            this.lblToken.TabIndex = 10;
+            this.lblToken.Text = "Código Authenticator:";
 
             // lblObs
             this.lblObs.AutoSize = true;
@@ -134,24 +137,29 @@ namespace HORAS_LOCLES
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(430, 410);
+
             this.Controls.Add(this.lblObs);
-            this.Controls.Add(this.lblClave);
+            this.Controls.Add(this.lblToken);
             this.Controls.Add(this.lblCedula);
+
             this.Controls.Add(this.btnAlmuerzoEntrada);
             this.Controls.Add(this.btnAlmuerzoSalida);
             this.Controls.Add(this.btnEntradaPartido);
             this.Controls.Add(this.btnSalidaPartido);
             this.Controls.Add(this.btnSalida);
             this.Controls.Add(this.btnEntrada);
+
             this.Controls.Add(this.txt_observacion);
-            this.Controls.Add(this.txt_clave);
+            this.Controls.Add(this.txt_token);
             this.Controls.Add(this.txt_cedula);
+
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
             this.MaximizeBox = false;
             this.Name = "Form1";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Marcaciones";
             this.Load += new System.EventHandler(this.Form1_Load);
+
             this.ResumeLayout(false);
             this.PerformLayout();
         }
@@ -159,16 +167,18 @@ namespace HORAS_LOCLES
         #endregion
 
         private System.Windows.Forms.TextBox txt_cedula;
-        private System.Windows.Forms.TextBox txt_clave;
+        private System.Windows.Forms.TextBox txt_token;
         private System.Windows.Forms.TextBox txt_observacion;
+
         private System.Windows.Forms.Button btnEntrada;
         private System.Windows.Forms.Button btnSalida;
         private System.Windows.Forms.Button btnSalidaPartido;
         private System.Windows.Forms.Button btnEntradaPartido;
         private System.Windows.Forms.Button btnAlmuerzoSalida;
         private System.Windows.Forms.Button btnAlmuerzoEntrada;
+
         private System.Windows.Forms.Label lblCedula;
-        private System.Windows.Forms.Label lblClave;
+        private System.Windows.Forms.Label lblToken;
         private System.Windows.Forms.Label lblObs;
     }
 }
