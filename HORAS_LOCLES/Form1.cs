@@ -5,6 +5,7 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Microsoft.Win32;
 using Newtonsoft.Json;
 
 namespace HORAS_LOCLES
@@ -23,18 +24,45 @@ namespace HORAS_LOCLES
 
         private void Form1_Load(object sender, EventArgs e) { }
 
+        private static string ObtenerMachineGuid()
+        {
+            try
+            {
+                using var key = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Microsoft\Cryptography");
+                return (key?.GetValue("MachineGuid")?.ToString() ?? "").Trim();
+            }
+            catch
+            {
+                return "";
+            }
+        }
+
+        private static string ObtenerNombreEquipo()
+        {
+            return Environment.MachineName;
+        }
+
+        private static string ObtenerUsuarioWindows()
+        {
+            return Environment.UserName;
+        }
+
         private static string TraducirError(string error)
         {
             return error switch
             {
                 "ERR_TOKEN" => "Token incorrecto. Revise la configuración del sistema.",
                 "ERR_CEDULA_REQUERIDA" => "Debe ingresar la cédula.",
-                "ERR_CLAVE_REQUERIDA" => "Debe ingresar la clave.",
+                "ERR_TOKEN_TOTP_REQUERIDO" => "Debe ingresar el código de Google Authenticator.",
+                "ERR_TOTP_NO_CONFIGURADO" => "Este trabajador no tiene configurado Google Authenticator.",
+                "ERR_TOKEN_TOTP_INVALIDO" => "El código de Google Authenticator no es correcto o ya expiró.",
                 "ERR_USUARIO_NO_EXISTE" => "La cédula no existe en la hoja Usuarios.",
-                "ERR_CLAVE_INVALIDA" => "La clave ingresada no es correcta.",
                 "ERR_SIN_ENTRADA" => "Primero debe registrar la entrada del día.",
                 "ERR_HOJA_NO_EXISTE" => "No existe la hoja Mark01 en el archivo de Google Sheets.",
                 "ERR_TIPO_DESCONOCIDO" => "Tipo de marcación no reconocido.",
+                "ERR_EQUIPO_NO_IDENTIFICADO" => "No se pudo identificar esta computadora.",
+                "ERR_EQUIPO_NO_AUTORIZADO" => "Esta computadora no está autorizada para registrar marcaciones.",
+                "ERR_EQUIPO_INACTIVO" => "Esta computadora está registrada, pero se encuentra inactiva.",
                 "ERR_GENERAL" => "Ocurrió un error general en el Apps Script.",
                 _ => "No se pudo registrar la marcación. Respuesta del servidor: " + error
             };
@@ -55,21 +83,24 @@ namespace HORAS_LOCLES
                 throw new Exception(TraducirError(text));
         }
 
-        private async Task SendToSheetsAsync(string cedula, string clave, string observacion, string tipo)
+        private async Task SendToSheetsAsync(string cedula, string tokenTotp, string observacion, string tipo)
         {
             var url = ConfigurationManager.AppSettings["SheetsWebhookUrl"];
-            var token = ConfigurationManager.AppSettings["SheetsToken"];
+            var tokenSistema = ConfigurationManager.AppSettings["SheetsToken"];
 
-            if (string.IsNullOrWhiteSpace(url) || string.IsNullOrWhiteSpace(token))
+            if (string.IsNullOrWhiteSpace(url) || string.IsNullOrWhiteSpace(tokenSistema))
                 throw new InvalidOperationException("Sheets webhook not configured. Falta URL o token.");
 
             var payload = new
             {
                 cedula = (cedula ?? "").Trim(),
-                clave = (clave ?? "").Trim(),
+                token_totp = (tokenTotp ?? "").Trim(),
                 mensaje = (observacion ?? "").Trim(),
                 tipo = (tipo ?? "entrada").ToLower(),
-                token = token
+                token = tokenSistema,
+                equipo_id = ObtenerMachineGuid(),
+                nombre_equipo = ObtenerNombreEquipo(),
+                usuario_windows = ObtenerUsuarioWindows()
             };
 
             await PostToGoogleAppsScriptAsync(url, payload);
@@ -83,15 +114,16 @@ namespace HORAS_LOCLES
             btnEntradaPartido.Enabled = enabled;
             btnAlmuerzoSalida.Enabled = enabled;
             btnAlmuerzoEntrada.Enabled = enabled;
+
             txt_cedula.Enabled = enabled;
-            txt_clave.Enabled = enabled;
+            txt_token.Enabled = enabled;
             txt_observacion.Enabled = enabled;
         }
 
         private async Task RegistrarMarcacionAsync(string tipo, string titulo)
         {
             var cedula = (txt_cedula.Text ?? "").Trim();
-            var clave = (txt_clave.Text ?? "").Trim();
+            var tokenTotp = (txt_token.Text ?? "").Trim();
             var obs = (txt_observacion.Text ?? "").Trim();
 
             if (string.IsNullOrWhiteSpace(cedula))
@@ -101,9 +133,16 @@ namespace HORAS_LOCLES
                 return;
             }
 
-            if (string.IsNullOrWhiteSpace(clave))
+            if (string.IsNullOrWhiteSpace(tokenTotp))
             {
-                MessageBox.Show("Ingrese la clave.", "Marcaciones",
+                MessageBox.Show("Ingrese el código de Google Authenticator.", "Marcaciones",
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            if (tokenTotp.Length != 6)
+            {
+                MessageBox.Show("El código de Google Authenticator debe tener 6 dígitos.", "Marcaciones",
                     MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
@@ -112,10 +151,10 @@ namespace HORAS_LOCLES
 
             try
             {
-                await SendToSheetsAsync(cedula, clave, obs, tipo);
+                await SendToSheetsAsync(cedula, tokenTotp, obs, tipo);
 
                 txt_cedula.Text = "";
-                txt_clave.Text = "";
+                txt_token.Text = "";
                 txt_observacion.Text = "";
 
                 MessageBox.Show($"{titulo} registrada.", "Marcaciones",
